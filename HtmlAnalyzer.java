@@ -1,3 +1,8 @@
+/**
+ * HtmlAnalyzer
+ * - Program to analyze an HTML document obtained from a URL and return the first text found at the deepest level of the structure.
+ * - Also validates if the HTML is formed correctly.
+ */
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -9,6 +14,9 @@ public class HtmlAnalyzer {
     public static final String ERROR_MESSAGE = "URL connection error";
     public static final String MALFORMED_HTML = "malformed HTML";
 
+    /**
+     * @param args command line arguments (args[0] must be the URL
+     */
     public static void main(String[] args) {
         if (args.length != 1) {
             System.out.println(ERROR_MESSAGE);
@@ -34,6 +42,12 @@ public class HtmlAnalyzer {
         }
     }
 
+    /**
+     * Opens an HTTP connection and validates if response code is 200 OK
+     * @param urlString URL to be accessed
+     * @return validated HttpUrlConnection
+     * @throws IOException if connection fails or response is not 200 OK
+     */
     private static HttpURLConnection openConnection(String urlString) throws IOException{
         URL url = new URL(urlString);
         HttpURLConnection urlConn = (HttpURLConnection) url.openConnection();
@@ -46,6 +60,13 @@ public class HtmlAnalyzer {
         return urlConn;
     }
 
+    /**
+     * Analyzes the HTML and returns the text at the deepest nesting level.
+     * @param buffer BufferedReader with HTML content
+     * @return text found at the deepest level
+     * @throws IOException if a read error occurs
+     * @throws IllegalStateException if HTML is malformed
+     */
     private static String deepestText(BufferedReader buffer) throws IOException{
         Stack<String> stack = new Stack<>();
         String line;
@@ -77,6 +98,14 @@ public class HtmlAnalyzer {
         return deepestText;
     }
 
+    /**
+     * Processes an opening tag and increments depth.
+     * @param line line containing the opening tag
+     * @param stack stack with opened tags
+     * @param depth current depth
+     * @return new depth after opening tag
+     * @throws IllegalStateException if tag is invalid
+     */
     private static int openingTag(String line, Stack<String> stack, int depth) throws IllegalStateException {
         String tagContent = extractTagContent(line);
 
@@ -88,6 +117,14 @@ public class HtmlAnalyzer {
         return ++depth;
     }
 
+    /**
+     * Processes a closing tag and decrements depth.
+     * @param line line containing the closing tag
+     * @param stack stack with opened tags
+     * @param depth current depth
+     * @return new depth after closing tag
+     * @throws IllegalStateException if structure is invalid
+     */
     private static int closingTag(String line, Stack<String> stack, int depth) throws IllegalStateException {
         String closeTag = extractTagContent(line);
 
@@ -110,6 +147,11 @@ public class HtmlAnalyzer {
         return depth;
     }
 
+    /**
+     * Extracts the tag name from a tag line.
+     * @param line line containing the tag
+     * @return tag name
+     */
     private static String extractTagContent(String line){
         int lastIndex = line.length() - 1;
 
